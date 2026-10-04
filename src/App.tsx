@@ -24,7 +24,7 @@ function App() {
   const [form, setForm] = useState({ name: '', phone: '', location: '', budget: 'Not decided yet', notes: '' })
   const [error, setError] = useState('')
   useEffect(() => {
-    const update = () => { const hero = document.querySelector<HTMLElement>('.hero'); if (!hero) return; const range = Math.max(1, hero.offsetHeight - innerHeight); const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / range)); setStage(matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : Math.min(11, Math.floor(progress * 12))) }
+    const update = () => { const hero = document.querySelector<HTMLElement>('.hero'); if (!hero) return; const range = Math.max(1, hero.offsetHeight - innerHeight); const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / range)); setStage(Math.min(11, Math.floor(progress * 12))) }
     let frame = 0
     const onScroll = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(update) }
     update(); addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); return () => { cancelAnimationFrame(frame); removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll) }

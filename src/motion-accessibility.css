@@ -1,0 +1,10 @@
+/* Preserve the visual stage sequence when a phone requests reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero { height: 800vh; }
+  .scroll, .progress { display: flex; }
+  .visual img { transition: none; }
+}
+
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .hero { height: 780svh; height: 780dvh; }
+}
