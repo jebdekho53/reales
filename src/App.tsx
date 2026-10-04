@@ -25,7 +25,9 @@ function App() {
   const [error, setError] = useState('')
   useEffect(() => {
     const update = () => { const hero = document.querySelector<HTMLElement>('.hero'); if (!hero) return; const range = Math.max(1, hero.offsetHeight - innerHeight); const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / range)); setStage(matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : Math.min(11, Math.floor(progress * 12))) }
-    update(); addEventListener('scroll', update, { passive: true }); addEventListener('resize', update); return () => { removeEventListener('scroll', update); removeEventListener('resize', update) }
+    let frame = 0
+    const onScroll = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(update) }
+    update(); addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); return () => { cancelAnimationFrame(frame); removeEventListener('scroll', onScroll); removeEventListener('resize', onScroll) }
   }, [])
   const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!form.name.trim() || form.phone.replace(/\D/g, '').length < 8) return setError('Please enter your name and a valid phone number.'); const message = `Hello, I would like to know about residential plots.\n\nName: ${form.name}\nPhone: ${form.phone}\nPreferred location: ${form.location || 'Not specified'}\nBudget: ${form.budget}\nNotes: ${form.notes || 'None'}`; window.open(whatsapp(message), '_blank', 'noopener'); setError('') }
   const [headline, copy] = stages[stage]
