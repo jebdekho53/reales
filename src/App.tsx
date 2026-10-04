@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { ArrowDown, Building2, FileCheck2, type LucideIcon, MapPin, MessageCircle, Phone, ShieldCheck } from 'lucide-react'
 
 const config = { brand: 'UrbanMove', project: 'MS Taj Buildtech Pvt. Ltd.', phone: '910000000000', city: 'Your city' }
@@ -25,6 +25,7 @@ function App() {
   const [visibleStage, setVisibleStage] = useState(0)
   const [leavingStage, setLeavingStage] = useState<number | null>(null)
   const [fadeLeaving, setFadeLeaving] = useState(false)
+  const visibleStageRef = useRef(0)
   const [form, setForm] = useState({ name: '', phone: '', location: '', budget: 'Not decided yet', notes: '' })
   const [error, setError] = useState('')
   useEffect(() => {
@@ -38,14 +39,16 @@ function App() {
     preload.forEach(index => { const image = new Image(); image.src = stageImages[index] })
   }, [stage])
   useEffect(() => {
-    if (stage === visibleStage) return
-    setLeavingStage(visibleStage)
+    if (stage === visibleStageRef.current) return
+    const outgoingStage = visibleStageRef.current
+    visibleStageRef.current = stage
+    setLeavingStage(outgoingStage)
     setFadeLeaving(false)
     setVisibleStage(stage)
     const frame = requestAnimationFrame(() => setFadeLeaving(true))
     const timer = window.setTimeout(() => setLeavingStage(null), 260)
     return () => { cancelAnimationFrame(frame); window.clearTimeout(timer) }
-  }, [stage, visibleStage])
+  }, [stage])
   const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!form.name.trim() || form.phone.replace(/\D/g, '').length < 8) return setError('Please enter your name and a valid phone number.'); const message = `Hello, I would like to know about residential plots.\n\nName: ${form.name}\nPhone: ${form.phone}\nPreferred location: ${form.location || 'Not specified'}\nBudget: ${form.budget}\nNotes: ${form.notes || 'None'}`; window.open(whatsapp(message), '_blank', 'noopener'); setError('') }
   const [headline, copy] = stages[stage]
   return <><a className="skip" href="#details">Skip to plot details</a><header className="hero" id="top"><div className="sticky"><div className="visual" aria-hidden="true">{leavingStage !== null && <img className={`leaving ${fadeLeaving ? 'fade' : ''}`} src={stageImages[leavingStage]} alt="" />}<img className="active" src={stageImages[visibleStage]} alt="" fetchPriority="high" /></div><nav><a className="brand" href="#top"><span>U</span>{config.brand}</a><a href="#inquiry">Book a plot visit</a></nav><div className="story"><small>Stage {String(stage + 1).padStart(2, '0')} / 12</small><h1>{headline}</h1><p>{copy}</p></div><div className="scroll"><ArrowDown size={16} /> Scroll to build the vision</div><div className="progress">{String(stage + 1).padStart(2, '0')} / 12 <i><b style={{ transform: `scaleX(${(stage + 1) / 12})` }} /></i></div></div></header><main><section className="section" id="details"><div className="intro"><div><small>A better beginning</small><h2>Buy the land. Build life your way.</h2></div><p>A home begins long before the first wall. {config.brand} presents residential plots from <strong>{config.project}</strong>, with clear documents, practical guidance and a site visit before you decide.</p></div><div className="benefits">{benefits.map(([Icon, title, text], index) => <article key={title}><Icon size={24} /><small>0{index + 1} / VERIFIED</small><h3>{title}</h3><p>{text}</p></article>)}</div></section><section className="process"><div className="section"><div><small>Simple, personal help</small><h2>From your first call to your plot visit.</h2><p>Buying a plot should feel clear, not complicated. We keep the conversation direct and the next step obvious.</p></div><ol><li><b>01</b><span><strong>Tell us your preferred location and budget</strong>Share what matters to you; we will begin with suitable options.</span></li><li><b>02</b><span><strong>Shortlist verified residential plots</strong>We focus on options that match your plans, not a long list of maybes.</span></li><li><b>03</b><span><strong>Visit the site with confidence</strong>See the road access, surroundings and plot potential yourself.</span></li></ol></div></section><section className="section lead" id="inquiry"><div><small>Book a site visit</small><h2>Let’s find your starting point.</h2><p>Share a few details. We will reply on WhatsApp to discuss plots that may suit you.</p><em>Set your live phone number and city in <code>src/App.tsx</code> before publishing.</em></div><form onSubmit={submit} noValidate><div className="fields"><label>Your name<input name="name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required /></label><label>Phone number<input name="phone" type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} required /></label><label>Preferred location<input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="Area or locality" /></label><label>Budget range<select value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })}><option>Not decided yet</option><option>Up to ₹10 lakh</option><option>₹10–25 lakh</option><option>₹25–50 lakh</option><option>Above ₹50 lakh</option></select></label><label className="wide">Anything else?<textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={3} placeholder="Plot size, timing, or any question" /></label></div><button><MessageCircle size={18} /> Send inquiry on WhatsApp</button><p className="error">{error}</p></form></section><section className="contact"><div><strong>Ready to explore a plot?</strong><p>{config.city} · A project by {config.project}</p></div><div><a className="whatsapp" href={whatsapp()}><MessageCircle size={17} /> WhatsApp us</a><a className="call" href={`tel:+${config.phone}`}><Phone size={17} /> Call now</a></div></section></main><footer><Building2 size={15} /> {config.brand} · A project by {config.project} · Residential plots · {new Date().getFullYear()}</footer></>
