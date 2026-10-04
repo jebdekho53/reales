@@ -1,0 +1,4 @@
+.visual img { transform: none; transition: opacity 260ms ease-out; }
+.visual img.active { opacity: 1; }
+.visual img.leaving { opacity: 1; z-index: 1; }
+.visual img.leaving.fade { opacity: 0; }
